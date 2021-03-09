@@ -22,9 +22,16 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
 
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   final ratings = [1, 2, 3, 4, 5];
+
+  int selectedRating;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +51,6 @@ class Home extends StatelessWidget {
       icons.add(Icon(Icons.star_border));
     }
 
-
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Container(
@@ -54,6 +60,13 @@ class Home extends StatelessWidget {
         ),
         child: ListTile(
           title: Row(children: icons,),
+          selected: selectedRating == rating,
+          selectedTileColor: Theme.of(context).primaryColor.withOpacity(0.9),
+          onTap: () {
+            this.setState(() {
+              this.selectedRating = rating;
+            });
+          },
         ),
       ),
     );
