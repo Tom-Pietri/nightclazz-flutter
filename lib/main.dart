@@ -33,6 +33,7 @@ class _HomeState extends State<Home> {
   final ratings = [1, 2, 3, 4, 5];
 
   int selectedRating;
+  int currentStep = 0;
 
   void _selectRating(int rating) {
     this.setState(() {
@@ -42,6 +43,28 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Votes(selectedRating, ratings, _selectRating);
+    return Stepper(
+        type: StepperType.horizontal,
+        currentStep: currentStep,
+        steps: [
+          Step(title: Text("Vote"), content: Votes(selectedRating, ratings, _selectRating)),
+          Step(title: Text("Résultats"), content: Text("Résultats"))
+        ],
+        onStepContinue: () {
+          if(this.selectedRating != null && this.currentStep == 0) {
+            this.setState(() {
+              this.selectedRating = null;
+              this.currentStep = 1;
+            });
+          }
+        },
+        onStepCancel: () {
+          if(this.currentStep == 1) {
+            this.setState(() {
+              this.currentStep = 0;
+            });
+          }
+        },
+    );
   }
 }
