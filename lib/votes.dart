@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'main.dart';
+
 class Votes extends StatelessWidget {
 
-  final List<int> ratings;
-  final int selectedRating;
-  void Function(int rating) selectRatingCallback;
+  final List<Rating> ratings;
+  final Rating selectedRating;
+  void Function(Rating rating) selectRatingCallback;
 
   Votes(this.selectedRating, this.ratings, this.selectRatingCallback);
 
@@ -15,14 +17,14 @@ class Votes extends StatelessWidget {
     );
   }
 
-  Widget _buildRatingTile(BuildContext context, int rating) {
+  Widget _buildRatingTile(BuildContext context, Rating rating) {
     List<Icon> icons = [];
 
-    for(int i = 0 ; i < rating ; i++) {
+    for(int i = 0 ; i < rating.value ; i++) {
       icons.add(Icon(Icons.star));
     }
 
-    for(int i = rating ; i < 5 ; i++) {
+    for(int i = rating.value ; i < 5 ; i++) {
       icons.add(Icon(Icons.star_border));
     }
 
@@ -35,7 +37,7 @@ class Votes extends StatelessWidget {
         ),
         child: ListTile(
           title: Row(children: icons,),
-          selected: selectedRating == rating,
+          selected: selectedRating != null && selectedRating.value == rating.value,
           selectedTileColor: Theme.of(context).primaryColor.withOpacity(0.9),
           onTap: () => this.selectRatingCallback(rating),
         ),
