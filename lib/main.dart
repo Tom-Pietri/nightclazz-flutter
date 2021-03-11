@@ -14,10 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Nightclazz App',
-      theme: ThemeData(
-        primaryColor: Colors.red,
-        primarySwatch: Colors.red
-      ),
+      theme: ThemeData(primaryColor: Colors.red, primarySwatch: Colors.red),
       home: Scaffold(
         appBar: AppBar(
           title: Text("Nightclazz App"),
@@ -29,7 +26,6 @@ class MyApp extends StatelessWidget {
 }
 
 class Home extends StatefulWidget {
-
   @override
   _HomeState createState() => _HomeState();
 }
@@ -50,17 +46,27 @@ class _HomeState extends State<Home> {
       stream: FirebaseFirestore.instance.collection('rate').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
-        final ratings = snapshot.data.docs.map((it) => Rating.fromDocument(it)).toList();
+        final ratings =
+            snapshot.data.docs.map((it) => Rating.fromDocument(it)).toList();
         return Stepper(
           type: StepperType.horizontal,
           currentStep: currentStep,
           steps: [
-            Step(title: Text("Vote"), content: Votes(selectedRating, ratings, _selectRating), isActive: true),
-            Step(title: Text("Résultats"), content: Results(ratings), isActive: currentStep == 1)
+            Step(
+                title: Text("Vote"),
+                content: Votes(selectedRating, ratings, _selectRating),
+                isActive: true),
+            Step(
+                title: Text("Résultats"),
+                content: Results(ratings),
+                isActive: currentStep == 1)
           ],
+          controlsBuilder: _buildControls,
           onStepContinue: () {
-            if(this.selectedRating != null && this.currentStep == 0) {
-              final rating = FirebaseFirestore.instance.collection('rate').doc(this.selectedRating.documentReference.id);
+            if (this.selectedRating != null && this.currentStep == 0) {
+              final rating = FirebaseFirestore.instance
+                  .collection('rate')
+                  .doc(this.selectedRating.documentReference.id);
               rating.update({'votes': this.selectedRating.votes + 1});
               this.setState(() {
                 this.selectedRating = null;
@@ -69,7 +75,7 @@ class _HomeState extends State<Home> {
             }
           },
           onStepCancel: () {
-            if(this.currentStep == 1) {
+            if (this.currentStep == 1) {
               this.setState(() {
                 this.currentStep = 0;
               });
@@ -79,30 +85,56 @@ class _HomeState extends State<Home> {
       },
     );
   }
+
+  Widget _buildControls(BuildContext context,
+      {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+    final nextStepButton = MaterialButton(
+      onPressed: this.selectedRating == null ? null : onStepContinue,
+      child: Text("Voter"),
+      color: Theme.of(context).primaryColor,
+      disabledColor: Theme.of(context).disabledColor,
+    );
+
+    final previousStepButton = MaterialButton(
+      onPressed: onStepCancel,
+      child: Text("Retour"),
+      color: Theme.of(context).primaryColor
+    );
+
+    return Row(mainAxisAlignment: MainAxisAlignment.center,
+    children: [ButtonBar(
+      children: [
+        currentStep == 0 ? nextStepButton : previousStepButton
+      ],
+    )]);
+  }
 }
 
 class Results extends StatelessWidget {
   List<Rating> ratings;
   int totalVotes = 1;
+
   Results(this.ratings) {
-    this.totalVotes = ratings.map((it) => it.votes).reduce((acc, votes) => acc + votes);
+    this.totalVotes =
+        ratings.map((it) => it.votes).reduce((acc, votes) => acc + votes);
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: ratings.map((rating) => _buildRatingRow(rating, context)).toList(),
+      children:
+          ratings.map((rating) => _buildRatingRow(rating, context)).toList(),
     );
   }
 
   Widget _buildRatingRow(Rating rating, BuildContext context) {
     List<Widget> icons = [];
 
-    for(int i = 0 ; i < rating.value ; i++) {
+    for (int i = 0; i < rating.value; i++) {
       icons.add(Icon(Icons.star));
     }
 
-    for(int i = rating.value ; i < 5 ; i++) {
+    for (int i = rating.value; i < 5; i++) {
       icons.add(Icon(Icons.star_border));
     }
 
@@ -115,14 +147,14 @@ class Results extends StatelessWidget {
           ),
         )));
 
-    return Padding(padding: EdgeInsets.symmetric(horizontal: 16.0, vertical : 8.0),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         children: icons,
       ),
     );
   }
 }
-
 
 class Rating {
   int value;
