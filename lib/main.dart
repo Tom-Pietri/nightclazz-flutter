@@ -15,7 +15,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Nightclazz App',
       theme: ThemeData(
-        primaryColor: Colors.red
+        primaryColor: Colors.red,
+        primarySwatch: Colors.red
       ),
       home: Scaffold(
         appBar: AppBar(
@@ -54,8 +55,8 @@ class _HomeState extends State<Home> {
           type: StepperType.horizontal,
           currentStep: currentStep,
           steps: [
-            Step(title: Text("Vote"), content: Votes(selectedRating, ratings, _selectRating)),
-            Step(title: Text("Résultats"), content: Text("Résultats"))
+            Step(title: Text("Vote"), content: Votes(selectedRating, ratings, _selectRating), isActive: true),
+            Step(title: Text("Résultats"), content: Results(ratings), isActive: currentStep == 1)
           ],
           onStepContinue: () {
             if(this.selectedRating != null && this.currentStep == 0) {
@@ -76,6 +77,48 @@ class _HomeState extends State<Home> {
           },
         );
       },
+    );
+  }
+}
+
+class Results extends StatelessWidget {
+  List<Rating> ratings;
+  int totalVotes = 1;
+  Results(this.ratings) {
+    this.totalVotes = ratings.map((it) => it.votes).reduce((acc, votes) => acc + votes);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: ratings.map((rating) => _buildRatingRow(rating, context)).toList(),
+    );
+  }
+
+  Widget _buildRatingRow(Rating rating, BuildContext context) {
+    List<Widget> icons = [];
+
+    for(int i = 0 ; i < rating.value ; i++) {
+      icons.add(Icon(Icons.star));
+    }
+
+    for(int i = rating.value ; i < 5 ; i++) {
+      icons.add(Icon(Icons.star_border));
+    }
+
+    icons.add(Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: SizedBox(
+          width: 160,
+          child: LinearProgressIndicator(
+            value: rating.votes / this.totalVotes,
+          ),
+        )));
+
+    return Padding(padding: EdgeInsets.symmetric(horizontal: 16.0, vertical : 8.0),
+      child: Row(
+        children: icons,
+      ),
     );
   }
 }
